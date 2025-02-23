@@ -25,7 +25,7 @@ public class Hooks {
  {
       "fields": {
         "project": {
-            "key": "TS"
+            "id": "10005"
         },
         "issuetype": {
             "name": "Bug"
@@ -45,44 +45,44 @@ public class Hooks {
 	}
 	
 	@AfterMethod
-	public void afterMethod(ITestResult result) throws IOException {
+	public void afterMethod(ITestResult result) throws IOException {	
 		if(!result.isSuccess()) {
-			// Take Screenshot for Failed test case
-			TakesScreenshot screenshot = (TakesScreenshot)driver;
-			File src = screenshot.getScreenshotAs(OutputType.FILE);
-			FileUtils.copyFile(src, new File("./images/"+result.getName()+".png"));
-			
-			// Create New Bug Ticket
-			String id = RestAssured.given()
-			   .baseUri("https://karthikeselene.atlassian.net")
-	           .basePath("/rest/api/3")
-	           .auth()	
-	           .preemptive()
-	           .basic("karthike.selene@gmail.com", "")
-	           .contentType(ContentType.JSON)
-	           .log().all()
-	           .body(bugPayload)
-	           .post("/issue")
-	           .then()
-	           .statusCode(201)
-	           .extract()
-	           .jsonPath()
-	           .getString("id");
-			
-			// Attach the error screenshot
-			RestAssured.given()
-			   .baseUri("https://karthikeselene.atlassian.net")
-	           .basePath("/rest/api/3")
-	           .auth()	
-	           .preemptive()
-	           .basic("karthike.selene@gmail.com", "")
-	           .header("X-Atlassian-Token", "no-check")
-	           .contentType(ContentType.MULTIPART)
-	           .multiPart(new File("./images/"+result.getName()+".png"))
-	           .post("/issue/"+id+"/attachments")
-	           .then()
-	           .statusCode(200);
-		}
+            // Take Screenshot for Failed test case
+            TakesScreenshot screenshot = (TakesScreenshot)driver;
+            File src = screenshot.getScreenshotAs(OutputType.FILE);
+            FileUtils.copyFile(src, new File("./images/"+result.getName()+".png"));
+            
+            // Create New Bug Ticket
+            String id = RestAssured.given()
+               .baseUri("https://karthikeselene.atlassian.net")
+               .basePath("/rest/api/3")
+               .auth()  
+               .preemptive()
+               .basic("karthike.selene@gmail.com", "")
+               .contentType(ContentType.JSON)
+               .log().all()
+               .body(bugPayload)
+               .post("/issue")
+               .then()
+               .statusCode(201)
+               .extract()
+               .jsonPath()
+               .getString("id");
+            
+            // Attach the error screenshot
+            RestAssured.given()
+               .baseUri("https://karthikeselene.atlassian.net")
+               .basePath("/rest/api/3")
+               .auth()  
+               .preemptive()
+               .basic("karthike.selene@gmail.com", "")
+               .header("X-Atlassian-Token", "no-check")
+               .contentType(ContentType.MULTIPART)
+               .multiPart(new File("./images/"+result.getName()+".png"))
+               .post("/issue/"+id+"/attachments")
+               .then()
+               .statusCode(200);
+        }
 		driver.quit();
 	}
 
